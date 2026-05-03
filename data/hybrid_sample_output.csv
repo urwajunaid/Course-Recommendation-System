@@ -1,0 +1,16 @@
+Course_Name,Company_Name,Difficulty,Ratings,cbf_score,ncf_score,query_course,user_id
+data analysis with r programming,google,beginner,4.8,0.19362075696118078,4.607758522033691,google cybersecurity,U0001
+sound the alarm: detection and response,google,beginner,4.8,0.4628648385018329,4.55356502532959,google cybersecurity,U0001
+preparing for google cloud certification: cloud architect,google cloud,beginner,4.7,0.1928284160217286,4.550780773162842,google cybersecurity,U0001
+foundations of cybersecurity,google,beginner,4.9,0.3976758856871272,4.546896934509277,google cybersecurity,U0001
+suporte em ti do google,google,beginner,4.9,0.31729160418018043,4.525806427001953,google cybersecurity,U0001
+business intelligence (bi) analyst,skillup edtech,beginner,4.7,0.28955162034163584,4.537229537963867,ibm data science,U0050
+ai foundations for everyone,ibm,beginner,4.7,0.33395248137182915,4.508676528930664,ibm data science,U0050
+introduction to data science in python,university of michigan,intermediate,4.5,0.2999958017620703,4.508511543273926,ibm data science,U0050
+ibm data engineering,ibm,beginner,4.6,0.366322749462614,4.491494178771973,ibm data science,U0050
+key technologies for business,ibm,beginner,4.7,0.3523051641431545,4.468439102172852,ibm data science,U0050
+"unsupervised learning, recommenders, reinforcement learning",deeplearning.ai,beginner,4.9,0.5780289360892247,,machine learning,None
+deep neural networks with pytorch,ibm,beginner,4.4,0.5779580679013658,,machine learning,None
+introduction to deep learning & neural networks with keras,ibm,advanced,4.7,0.566973537637612,,machine learning,None
+advanced learning algorithms,deeplearning.ai,intermediate,4.9,0.5506790911625385,,machine learning,None
+reinforcement learning,university of alberta,beginner,4.7,0.5083051448581775,,machine learning,None
