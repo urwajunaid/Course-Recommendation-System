@@ -42,10 +42,10 @@ OUTPUT_DIR  = r"C:\Users\Urwa\OneDrive\Desktop\semester 8\RS\Course Recommendati
 # Model hyperparameters
 EMBEDDING_DIM   = 32       # size of user/course embedding vectors
 MLP_LAYERS      = [128, 64, 32]  # hidden layer sizes
-DROPOUT_RATE    = 0.3
+DROPOUT_RATE    = 0.2
 LEARNING_RATE   = 0.001
 BATCH_SIZE      = 64
-EPOCHS          = 30
+EPOCHS          = 50
 VALIDATION_SPLIT= 0.15
 RANDOM_SEED     = 42
 
@@ -168,7 +168,7 @@ model.summary()
 callbacks = [
     keras.callbacks.EarlyStopping(
         monitor   = "val_loss",
-        patience  = 5,
+        patience  = 8,
         restore_best_weights = True,
         verbose   = 1
     ),

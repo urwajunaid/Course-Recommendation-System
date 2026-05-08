@@ -1,7 +1,7 @@
 import pandas as pd
 
 # STEP 1: Load dataset
-df = pd.read_csv(r"C:\Users\Urwa\OneDrive\Desktop\semester 8\RS\Course Recommendation System\data\coursera_1000_Courses")
+df = pd.read_csv(r"C:\Users\Urwa\OneDrive\Desktop\semester 8\RS\Course Recommendation System\data\cleaned_courses.csv")
 # STEP 2: Basic info
 print("🔹 Dataset Shape:", df.shape)
 print("\n🔹 Columns:", df.columns.tolist())
@@ -24,6 +24,9 @@ df = df.dropna(subset=['Difficulty', 'Type_Of_Certificate', 'Duration'])
 df['Ratings'] = df['Ratings'].fillna(df['Ratings'].median())
 df['Reviews'] = df['Reviews'].fillna('(0 reviews)')
 
+# Drop "not found" difficulty — too vague to be useful
+df = df[~df['Difficulty'].str.lower().str.strip().eq('not found')]
+
 # STEP 6: Remove duplicates
 df = df.drop_duplicates()
 
@@ -38,11 +41,27 @@ df['Company_Name'] = df['Company_Name'].str.lower().str.strip()
 df['Difficulty'] = df['Difficulty'].str.lower().str.strip()
 
 # STEP 9: Combine features for NLP/recommendation tasks
-df['combined_text'] = df['Course_Name'] + " " + df['Skills'] + " " + df['Company_Name']
+#df['combined_text'] = df['Course_Name'] + " " + df['Skills'] + " " + df['Company_Name']
+# STEP 9: Combine features for NLP/recommendation tasks
+df['combined_text'] = (
+    df['Course_Name'].fillna("") + " " +
+    df['Skills'].fillna("") + " " +
+    df['Skills'].fillna("") + " " +       # repeated for higher TF-IDF weight
+    df['Skills'].fillna("") + " " +       # repeated for higher TF-IDF weight
+    df['Difficulty'].fillna("") + " " +
+    df['Type_Of_Certificate'].fillna("") + " " +
+    df['Company_Name'].fillna("") + " " +
+    df['Duration'].fillna("")
+)
 
 # STEP 10: Save cleaned dataset
-df.to_csv("../data/cleaned_courses.csv", index=False)
+print("\n🔹 Combined text word count stats:")
+print(df['combined_text'].str.split().str.len().describe())
 
+df.to_csv(
+    r"C:\Users\Urwa\OneDrive\Desktop\semester 8\RS\Course Recommendation System\data\cleaned_courses.csv",
+    index=False
+)
 print("\n✅ Data cleaning completed!")
 print(f"Final shape: {df.shape}")
 print("Saved as cleaned_courses.csv")

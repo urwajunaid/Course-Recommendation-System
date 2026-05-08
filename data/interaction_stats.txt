@@ -1,34 +1,29 @@
-==================================================
-  SYNTHETIC INTERACTION DATA STATISTICS
-  Course Recommendation System | Phase 2
-==================================================
+SYNTHETIC INTERACTION STATS v2
+Generated : 2026-05-08 23:44
 
-Generated on     : 2026-05-04 01:51
-Random seed      : 42
+Users      : 500
+Courses    : 869
+Total      : 11236
 
-Total users      : 500
-Total courses    : 972
-Total interactions: 6258
-Avg per user     : 12.5
-Sparsity         : 98.7%
+Rating Stats:
+count    11236.00
+mean         2.57
+std          1.10
+min          1.00
+25%          1.70
+50%          2.30
+75%          3.40
+max          5.00
 
-Interaction Types:
-interaction_type
-completed      4763
-in_progress    1175
-dropped         320
-
-Rating Distribution:
-count    6258.00
-mean        4.39
-std         0.61
-min         1.40
-25%         4.00
-50%         4.50
-75%         5.00
-max         5.00
+Persona Distribution:
+user_persona
+AI_Learner           2714
+Business_Learner     2661
+Data_Analyst         2348
+Software_Engineer    2302
+General_Learner      1211
 
 Implicit Feedback:
 implicit_feedback
-1    4135
-0    2123
+0    7942
+1    3294
