@@ -3,12 +3,6 @@
   Evaluation — Ranking Metrics (Precision, Recall, NDCG, Coverage)
   Phase 4 | NUCES FAST | Data & Evaluation: Urwa Junaid
 ============================================================
-Inputs  :
-  data/synthetic_interactions.csv  — full interaction log
-  data/ncf_model.keras             — trained NCF model
-  data/ncf_user_encoder.pkl        — user ID label encoder
-  data/ncf_course_encoder.pkl      — course ID label encoder
-
 Run: python eval/ranking_metrics.py
 """
 
@@ -19,34 +13,29 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
-# ── Paths (relative to project root) ─────────────────────
+# ── Paths ─────────────────────────────────────────────────
 BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR   = os.path.join(BASE_DIR, "data")
+DATA_DIR   = os.path.join(BASE_DIR, "ML_model", "data")
 
 INTERACTIONS_CSV = os.path.join(DATA_DIR, "synthetic_interactions.csv")
 MODEL_PATH       = os.path.join(DATA_DIR, "ncf_model.keras")
 USER_ENC_PATH    = os.path.join(DATA_DIR, "ncf_user_encoder.pkl")
 COURSE_ENC_PATH  = os.path.join(DATA_DIR, "ncf_course_encoder.pkl")
 
-# Rating scale (must match ncf_model.py)
 R_MIN, R_MAX = 1.0, 5.0
 
 
 def load_artifacts():
-    """Load model, encoders, and test split from local data directory."""
     print("📂 Loading artifacts …")
-
-    # Load interaction data and create a test split
     interactions_df = pd.read_csv(INTERACTIONS_CSV)
     if "Unnamed: 0" in interactions_df.columns:
         interactions_df.drop(columns=["Unnamed: 0"], inplace=True)
 
     _, test_df = train_test_split(interactions_df, test_size=0.2, random_state=42)
 
-    # Load trained model and encoders
-    model      = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.keras.models.load_model(MODEL_PATH)
     with open(USER_ENC_PATH,   "rb") as f:
-        user_enc   = pickle.load(f)
+        user_enc = pickle.load(f)
     with open(COURSE_ENC_PATH, "rb") as f:
         course_enc = pickle.load(f)
 
@@ -57,21 +46,15 @@ def load_artifacts():
 
 
 def calculate_ranking_metrics(model, test_df, course_enc, user_enc, k=10, num_users=100):
-    """
-    Compute Precision@K, Recall@K, NDCG@K, and Coverage@K
-    over a subset of users from the test split.
-    """
     precisions        = []
     recalls           = []
     ndcgs             = []
     recommended_items = set()
     all_unique_courses = set(course_enc.classes_)
 
-    # Use a subset of users for speed
     eval_users = test_df['user_id'].unique()[:num_users]
 
     for user_id in eval_users:
-        # 1. Ground truth: courses the user rated >= 4.0 in the test set
         actual_liked = set(
             test_df[
                 (test_df['user_id'] == user_id) & (test_df['rating'] >= 4.0)
@@ -79,12 +62,9 @@ def calculate_ranking_metrics(model, test_df, course_enc, user_enc, k=10, num_us
         )
         if not actual_liked:
             continue
-
-        # 2. Skip users not seen during training
         if user_id not in user_enc.classes_:
             continue
 
-        # 3. Get model predictions for ALL courses
         u_idx          = user_enc.transform([user_id])[0]
         all_course_ids = course_enc.classes_
         c_indices      = course_enc.transform(all_course_ids)
@@ -92,20 +72,16 @@ def calculate_ranking_metrics(model, test_df, course_enc, user_enc, k=10, num_us
         user_input = np.full(len(c_indices), u_idx)
         preds      = model.predict([user_input, c_indices], verbose=0).flatten()
 
-        # 4. Top-K recommendations
         top_indices   = np.argsort(preds)[::-1][:k]
         top_k_items   = all_course_ids[top_indices]
         recommended_items.update(top_k_items)
 
-        # 5. Precision & Recall
         hits = len(set(top_k_items) & actual_liked)
         precisions.append(hits / k)
         recalls.append(hits / len(actual_liked) if len(actual_liked) > 0 else 0)
 
-        # 6. NDCG
         dcg  = 0.0
         idcg = 0.0
-        # Ideal DCG: all liked items perfectly ranked at the top
         for i in range(min(len(actual_liked), k)):
             idcg += 1.0 / np.log2(i + 2)
         for i, item in enumerate(top_k_items):
@@ -113,17 +89,13 @@ def calculate_ranking_metrics(model, test_df, course_enc, user_enc, k=10, num_us
                 dcg += 1.0 / np.log2(i + 2)
         ndcgs.append(dcg / idcg if idcg > 0 else 0)
 
-    # 7. Coverage
     coverage = len(recommended_items) / len(all_unique_courses)
 
     print(f"--- Ranking Metrics @ {k} (Evaluated on {len(precisions)} users) ---")
     print(f"✅ Precision@{k}: {np.mean(precisions):.4f}")
     print(f"✅ Recall@{k}:    {np.mean(recalls):.4f}")
     print(f"✅ NDCG@{k}:      {np.mean(ndcgs):.4f}")
-    print(
-        f"✅ Coverage@{k}:  {coverage:.4f} "
-        f"({len(recommended_items)}/{len(all_unique_courses)} unique courses)"
-    )
+    print(f"✅ Coverage@{k}:  {coverage:.4f} ({len(recommended_items)}/{len(all_unique_courses)} unique courses)")
 
     return {
         "precision": np.mean(precisions),

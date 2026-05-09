@@ -1,0 +1,176 @@
+/* HomePage.module.css */
+
+.page { display: flex; flex-direction: column; }
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 4rem 1.5rem 5rem;
+}
+.heroBg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(79,114,255,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.heroContent { position: relative; z-index: 1; max-width: 700px; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--border-glow);
+  border-radius: 100px;
+  padding: 4px 14px;
+  margin-bottom: 1.2rem;
+  background: var(--accent-dim);
+}
+
+.heroTitle {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.heroAccent {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.heroSub {
+  color: var(--text-dim);
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+/* Search bar */
+.searchWrap { position: relative; max-width: 580px; margin: 0 auto; }
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: visible;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.searchBox:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.searchIcon { padding: 0 1rem; color: var(--text-muted); font-size: 1.2rem; }
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.9rem 0;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.searchInput::placeholder { color: var(--text-muted); }
+.searchBtn {
+  margin: 6px;
+  padding: 0.65rem 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: opacity var(--transition);
+}
+.searchBtn:hover { opacity: 0.85; }
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  z-index: 50;
+  box-shadow: var(--shadow);
+  list-style: none;
+}
+.suggestions li {
+  padding: 0.65rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.suggestions li:hover { background: var(--bg-input); color: var(--text); }
+.sugIcon { color: var(--accent); margin-right: 0.4rem; }
+
+/* ── Sections ── */
+.section { padding: 3rem 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+.sectionHead {
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;
+}
+.sectionHead h2 { font-size: 1.4rem; font-weight: 700; }
+.tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--border-glow);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+.skeleton {
+  height: 200px;
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-input) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-lg);
+}
+.loadingRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.empty { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ── CTA ── */
+.ctaSection { padding: 3rem 1.5rem; display: flex; justify-content: center; }
+.ctaCard {
+  max-width: 540px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+}
+.ctaCard h2 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.ctaCard p  { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.ctaBtn {
+  display: inline-block;
+  padding: 0.7rem 1.8rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: opacity var(--transition);
+}
+.ctaBtn:hover { opacity: 0.85; }
