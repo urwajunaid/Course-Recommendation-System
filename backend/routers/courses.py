@@ -8,7 +8,7 @@ from typing import Optional
 import os, pandas as pd
 
 from database import get_db, User
-from security import get_current_user
+from security import get_current_user, get_optional_user
 from ml.loader import get_courses_df
 
 router = APIRouter()
@@ -36,6 +36,11 @@ class CourseOut(BaseModel):
 
 
 # ── Endpoints ─────────────────────────────────────────────
+
+@router.get("/test")
+def test_endpoint():
+    """Test endpoint to verify router is working."""
+    return {"status": "courses router is working"}
 
 @router.get("/", response_model=list[CourseOut])
 def list_courses(
@@ -76,35 +81,42 @@ def autocomplete(q: str = Query(..., min_length=1)):
 
 @router.post("/rate", status_code=201)
 def rate_course(
-    body         : RatingRequest,
-    current_user : User    = Depends(get_current_user),
-    db           = Depends(get_db),
+    body: RatingRequest,
+    current_user: User = Depends(get_optional_user),
+    db=Depends(get_db),
 ):
     """Save or update a user's rating for a course."""
     if not db:
         raise HTTPException(status_code=503, detail="Database unavailable")
-        
-    with db.cursor() as cursor:
-        cursor.execute("SELECT id FROM courses WHERE course_name LIKE %s", (body.course_name,))
-        course = cursor.fetchone()
-        
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    with db.cursor() as cursor:
-        cursor.execute("SELECT id FROM interactions WHERE user_id = %s AND course_id = %s", (current_user.id, course['id']))
-        existing = cursor.fetchone()
-        
-        if existing:
-            cursor.execute("UPDATE interactions SET rating = %s WHERE id = %s", (body.rating, existing['id']))
-            msg = "Rating updated"
-        else:
-            cursor.execute("INSERT INTO interactions (user_id, course_id, rating) VALUES (%s, %s, %s)", (current_user.id, course['id'], body.rating))
-            msg = "Rating saved"
     
-    db.commit()
-    return {"message": msg, "rating": body.rating}
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required. Please log in first.")
 
+    with db.cursor() as cursor:
+        # ---------- FIND COURSE ----------
+        cursor.execute(
+            "SELECT id FROM courses WHERE LOWER(course_name) = LOWER(%s)",
+            (body.course_name.strip(),)
+        )
+        course = cursor.fetchone()
+
+        if not course:
+            raise HTTPException(status_code=404, detail="Course not found")
+
+        course_id = course["id"]
+
+        # ---------- UPSERT RATING (atomic, prevents race conditions) ----------
+        cursor.execute(
+            """
+            INSERT INTO interactions (user_id, course_id, rating)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE rating = VALUES(rating)
+            """,
+            (current_user.id, course_id, body.rating)
+        )
+
+    db.commit()
+    return {"message": "Rating saved", "rating": body.rating}
 
 @router.get("/my-ratings")
 def my_ratings(current_user: User = Depends(get_current_user),
