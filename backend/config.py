@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     # MySQL
     DB_HOST     : str = "localhost"
     DB_PORT     : int = 3306
-    DB_USER     : str = "root"
-    DB_PASSWORD : str = "Rafey@1308"
+    DB_USER     : str = "RSproj"
+    DB_PASSWORD : str = "Urwa@123"
     DB_NAME     : str = "course_recommender"
 
     # JWT

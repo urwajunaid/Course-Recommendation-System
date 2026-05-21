@@ -86,9 +86,9 @@ def create_tables():
                 company_name VARCHAR(150),
                 difficulty VARCHAR(50),
                 ratings FLOAT,
-                reviews VARCHAR(50),
+                reviews VARCHAR(500),
                 type_of_certificate VARCHAR(100),
-                duration VARCHAR(100),
+                duration VARCHAR(200),
                 skills TEXT,
                 INDEX (course_name)
             )

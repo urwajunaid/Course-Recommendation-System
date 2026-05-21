@@ -92,16 +92,31 @@ def rate_course(
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required. Please log in first.")
 
+    course_name_clean = body.course_name.strip()
+
     with db.cursor() as cursor:
-        # ---------- FIND COURSE ----------
+        # ---------- FIND COURSE — exact match first, then LIKE fallback ----------
         cursor.execute(
-            "SELECT id FROM courses WHERE LOWER(course_name) = LOWER(%s)",
-            (body.course_name.strip(),)
+            "SELECT id, course_name FROM courses WHERE LOWER(course_name) = LOWER(%s)",
+            (course_name_clean,)
         )
         course = cursor.fetchone()
 
         if not course:
-            raise HTTPException(status_code=404, detail="Course not found")
+            # Fallback: partial match for minor name differences
+            cursor.execute(
+                "SELECT id, course_name FROM courses WHERE LOWER(course_name) LIKE LOWER(%s) LIMIT 1",
+                (f"%{course_name_clean}%",)
+            )
+            course = cursor.fetchone()
+
+        if not course:
+            print(f"[WARN] rate_course: '{course_name_clean}' not found in courses table. "
+                  "Run /api/courses/seed or restart the backend to auto-seed.")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Course '{course_name_clean}' not found. The course catalog may not be loaded yet."
+            )
 
         course_id = course["id"]
 
@@ -110,12 +125,13 @@ def rate_course(
             """
             INSERT INTO interactions (user_id, course_id, rating)
             VALUES (%s, %s, %s)
-            ON DUPLICATE KEY UPDATE rating = VALUES(rating)
+            ON DUPLICATE KEY UPDATE rating = VALUES(rating), created_at = CURRENT_TIMESTAMP
             """,
             (current_user.id, course_id, body.rating)
         )
 
     db.commit()
+    print(f"[OK] Rating saved: user_id={current_user.id} course='{course_name_clean}' rating={body.rating}")
     return {"message": "Rating saved", "rating": body.rating}
 
 @router.get("/my-ratings")

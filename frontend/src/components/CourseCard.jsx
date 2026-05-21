@@ -9,18 +9,21 @@ export default function CourseCard({ course, rank }) {
   const [hovered, setHovered]   = useState(0);
   const [saved, setSaved]       = useState(false);
   const [saving, setSaving]     = useState(false);
+  const [rateError, setRateError] = useState("");
   const [expanded, setExpanded] = useState(false);
 
   const handleRate = async (stars) => {
     if (!user) return;
     setRating(stars);
     setSaving(true);
+    setRateError("");
     try {
       await api.rateCourse(course.course_name, stars);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch {
-      // ignore
+    } catch (err) {
+      setRateError(err.message || "Failed to save rating");
+      setTimeout(() => setRateError(""), 4000);
     } finally {
       setSaving(false);
     }
@@ -124,6 +127,11 @@ export default function CourseCard({ course, rank }) {
               </button>
             ))}
           </div>
+          {rateError && (
+            <span style={{ color: "var(--danger)", fontSize: "0.75rem", marginLeft: "0.5rem" }}>
+              ⚠ {rateError}
+            </span>
+          )}
         </div>
       )}
     </div>
